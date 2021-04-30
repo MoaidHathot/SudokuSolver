@@ -9,7 +9,7 @@ namespace SudokuSolver.Engine
         private readonly BitArray _bits;
 
         public int Length => _bits.Length;
-        public int Count => _bits.Count;
+        public int Count { get; private set; }
 
         public NumberSet(int length)
             => _bits = new BitArray(length);
@@ -61,6 +61,9 @@ namespace SudokuSolver.Engine
         }
 
         private void Set(int number, bool exist)
-            => _bits.Set(number - 1, exist);
+        {
+            _bits.Set(number - 1, exist);
+            Count += exist ? 1 : -1;
+        }
     }
 }

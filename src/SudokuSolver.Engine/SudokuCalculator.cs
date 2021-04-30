@@ -11,7 +11,7 @@ namespace SudokuSolver.Engine
         public const int SudokuSize = 9;
         public const int SudokuCubeSize = SudokuSize / 3;
 
-        public const int MaxItems = SudokuCubeSize * SudokuCubeSize;
+        public const int MaxItems = SudokuSize * SudokuSize;
 
         public static (int row, int column) GetStartingCubeCellFromCubeIndex(int cubeIndex)
             => (cubeIndex / SudokuCubeSize * SudokuCubeSize, cubeIndex * SudokuCubeSize % SudokuSize);

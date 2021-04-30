@@ -30,6 +30,7 @@ namespace SudokuSolver.Engine
             Grid = grid;
             InitializeSets(grid);
             FilledNumbersCount = CountFilledNumbers();
+            
             FillEmptyCells(_emptyCells);
         }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using SudokuSolver.Engine.Extensions;
 
 namespace SudokuSolver.Engine
 {
@@ -22,29 +23,26 @@ namespace SudokuSolver.Engine
                 return true;
             }
 
-            foreach(var (row, column) in _sudoku.EmptyCells)
+            var (row, column) = _sudoku.EmptyCells.FirstOrDefault();
+
+            foreach (var number in _sudoku.GetMissingInRow(row))
             {
-                foreach (var number in _sudoku.GetMissingInRow(row))
+                if (_validator.IsValidPlacement(_sudoku, row, column, number))
                 {
-                    if (_validator.IsValidPlacement(_sudoku, row, column, number))
+                    _sudoku[row, column] = number;
+                    HandleCellChanged(row, column, number);
+
+                    if (Solve())
                     {
-                        _sudoku[row, column] = number;
-                        HandleCellChanged(row, column, number);
-
-                        if (Solve())
-                        {
-                            return true;
-                        }
-
-                        _sudoku[row, column] = null;
-                        HandleCellChanged(row, column, number);
+                        return true;
                     }
-                }
 
-                return false;
+                    _sudoku[row, column] = null;
+                    HandleCellChanged(row, column, number);
+                }
             }
 
-            return true;
+            return false;
         }
 
         public bool Validate()
@@ -53,7 +51,8 @@ namespace SudokuSolver.Engine
         private void HandleCellChanged(int row, int column, int? value)
         {
             OnCellChanged?.Invoke(this, (row, column, value));
-            //Thread.Sleep(200);
+            //Thread.Sleep(100);
+            //Thread.Yield();
         }
     }
 }
