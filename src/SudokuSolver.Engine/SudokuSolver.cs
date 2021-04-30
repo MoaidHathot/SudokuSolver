@@ -49,10 +49,6 @@ namespace SudokuSolver.Engine
             => _validator.GetSudokuState(_sudoku) is (true, true);
 
         private void HandleCellChanged(int row, int column, int? value)
-        {
-            OnCellChanged?.Invoke(this, (row, column, value));
-            //Thread.Sleep(100);
-            //Thread.Yield();
-        }
+            => OnCellChanged?.Invoke(this, (row, column, value));
     }
 }
