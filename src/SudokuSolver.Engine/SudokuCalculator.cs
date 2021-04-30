@@ -11,6 +11,8 @@ namespace SudokuSolver.Engine
         public const int SudokuSize = 9;
         public const int SudokuCubeSize = SudokuSize / 3;
 
+        public const int MaxItems = SudokuCubeSize * SudokuCubeSize;
+
         public static (int row, int column) GetStartingCubeCellFromCubeIndex(int cubeIndex)
             => (cubeIndex / SudokuCubeSize * SudokuCubeSize, cubeIndex * SudokuCubeSize % SudokuSize);
 
@@ -20,6 +22,14 @@ namespace SudokuSolver.Engine
             var cubeCol = (column / SudokuCubeSize) * SudokuCubeSize;
 
             return (cubeRow, cubeCol);
+        }
+
+        public static int GetCubeFromCell(int row, int column)
+        {
+            var index = column / SudokuCubeSize;
+            var offset = row / SudokuCubeSize * SudokuCubeSize;
+
+            return offset + index;
         }
     }
 }
