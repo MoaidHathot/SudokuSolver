@@ -58,6 +58,15 @@ namespace SudokuSolver.Engine
         public IEnumerable<int> GetExistingInCube(int cube)
             => _cubeSets[cube].GetExistingNumbers();
 
+        public bool IsRowComplete(int row)
+            => _rowSets[row].IsFull();
+
+        public bool IsColumnComplete(int column)
+            => _columnSets[column].IsFull();
+
+        public bool IsCubeComplete(int cube)
+            => _cubeSets[cube].IsFull();
+
         public IEnumerable<int> GetMissingInRow(int row)
             => _rowSets[row].GetMissingNumbers();
 
@@ -88,19 +97,16 @@ namespace SudokuSolver.Engine
 
                 ++FilledNumbersCount;
             }
-            else
+            else if (Grid[row, column] is int toRemove)
             {
-                if (Grid[row, column] is int toRemove)
-                {
-                    rowSet.Remove(toRemove);
-                    columnSet.Remove(toRemove);
-                    cubeSet.Remove(toRemove);
+                rowSet.Remove(toRemove);
+                columnSet.Remove(toRemove);
+                cubeSet.Remove(toRemove);
 
-                    Grid[row, column] = value;
-                    _emptyCells.Add((row, column));
+                Grid[row, column] = value;
+                _emptyCells.Add((row, column));
 
-                    --FilledNumbersCount;
-                }
+                --FilledNumbersCount;
             }
         }
 

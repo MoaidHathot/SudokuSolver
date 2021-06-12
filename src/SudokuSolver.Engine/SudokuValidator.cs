@@ -22,11 +22,12 @@ namespace SudokuSolver.Engine
             return (valid, IsSudokuComplete(sudoku));
         }
 
+
         public bool IsSudokuComplete(Sudoku sudoku)
         {
             for (var row = 0; row < sudoku.RowCount; ++row)
             {
-                if (sudoku.GetMissingInRow(row).Any())
+                if (!sudoku.IsRowComplete(row))
                 {
                     return false;
                 }
@@ -34,7 +35,7 @@ namespace SudokuSolver.Engine
 
             for (var column = 0; column < sudoku.ColumnCount; ++column)
             {
-                if (sudoku.GetMissingInColumn(column).Any())
+                if (!sudoku.IsColumnComplete(column))
                 {
                     return false;
                 }
@@ -42,7 +43,7 @@ namespace SudokuSolver.Engine
 
             for (var cube = 0; cube < sudoku.CubeCount; ++cube)
             {
-                if (sudoku.GetMissingInCube(cube).Any())
+                if (!sudoku.IsCubeComplete(cube))
                 {
                     return false;
                 }
@@ -78,14 +79,7 @@ namespace SudokuSolver.Engine
         }
 
         public bool IsValidPlacement(Sudoku sudoku, int row, int column, int number)
-        {
-            if (sudoku.ExistInRow(row, number) || sudoku.ExistInColumn(column, number) || sudoku.ExistInCube(SudokuCalculator.GetCubeFromCell(row, column), number))
-            {
-                return false;
-            }
-
-            return true;
-        }
+            => !sudoku.ExistInRow(row, number) && !sudoku.ExistInColumn(column, number) && !sudoku.ExistInCube(SudokuCalculator.GetCubeFromCell(row, column), number);
 
         public bool IsRowValid(Sudoku sudoku, int row)
         {

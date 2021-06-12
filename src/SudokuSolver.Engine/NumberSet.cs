@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using SudokuSolver.Engine.Extensions;
@@ -33,37 +34,45 @@ namespace SudokuSolver.Engine
             => !IsExist(number);
 
         public bool IsFull()
-            => GetMissingNumbers().None();
+            => Count == Length;
 
         public bool IsEmpty()
-            => GetExistingNumbers().None();
+            => 0 == Count;
 
         public IEnumerable<int> GetExistingNumbers()
-        {
-            for (var index = 0; index < _bits.Length; ++index)
-            {
-                if (_bits.Get(index))
-                {
-                    yield return index + 1;
-                }
-            }
-        }
+            => NumberIterator(index => _bits.Get(index));
 
         public IEnumerable<int> GetMissingNumbers()
+            => NumberIterator(index => !_bits.Get(index));
+
+        private IEnumerable<int> NumberIterator(Func<int, bool> filter)
         {
             for (var index = 0; index < _bits.Length; ++index)
             {
-                if (!_bits.Get(index))
+                if (filter(index))
                 {
                     yield return index + 1;
                 }
             }
         }
 
-        private void Set(int number, bool exist)
+        private void Set(int number, bool @on)
         {
-            _bits.Set(number - 1, exist);
-            Count += exist ? 1 : -1;
+            var index = number - 1;
+            var existed = _bits.Get(index);
+
+            //Bit was already set and now it should be off
+            if (existed && !@on)
+            {
+                _bits.Set(index, false);
+                Count -= 1;
+            } 
+            //Bit was off and now it should be set
+            else if (!existed && @on)
+            {
+                _bits.Set(index, true);
+                Count += 1;
+            }
         }
     }
 }
