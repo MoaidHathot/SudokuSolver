@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SudokuSolver.Engine;
+using SudokuSolver.Engine.Extensions;
 
-namespace SudokuSolver.Engine.Test
+namespace SudokuSolver.Test.Engine
 {
     [TestClass]
     public class NumberSetTests
@@ -63,31 +62,33 @@ namespace SudokuSolver.Engine.Test
         {
             var set = new NumberSet(length);
 
-            set.Should().BeEquivalentTo(new
+            AssertionExtensions.Should((object) set).BeEquivalentTo(new
             {
                 Length = length,
                 Count = 0
             });
+
+            AssertionExtensions.Should((bool) set.IsEmpty()).BeTrue();
         }
 
         [TestMethod]
         [DataRow(1)]
         [DataRow(3)]
         [DataRow(10)]
-        public void TestCount_AddOnce_ShouldBeOne(int length)
+        public void AddOnce_ShouldBeOne(int length)
         {
             var set = new NumberSet(length);
 
             set.Add(1);
 
-            set.Should().BeEquivalentTo(new
+            AssertionExtensions.Should((object) set).BeEquivalentTo(new
             {
                 Length = length,
                 Count = 1
             });
 
-            set.IsExist(1).Should().BeTrue();
-            set.IsMissing(1).Should().BeFalse();
+            AssertionExtensions.Should((bool) set.IsExist(1)).BeTrue();
+            AssertionExtensions.Should((bool) set.IsMissing(1)).BeFalse();
             set.GetExistingNumbers().Should().Contain(1);
             set.GetMissingNumbers().Should().NotContain(1);
         }
@@ -102,7 +103,7 @@ namespace SudokuSolver.Engine.Test
         [DataRow(10, 2)]
         [DataRow(10, 3)]
         [DataRow(10, 10)]
-        public void TestCount_AddOnceRemoveOnce_ShouldBeZero(int length, int add)
+        public void AddOnceRemoveOnce_ShouldBeZero(int length, int add)
         {
             var set = new NumberSet(length);
 
@@ -110,14 +111,14 @@ namespace SudokuSolver.Engine.Test
             set.Remove(add);
             set.Add(add);
 
-            set.Should().BeEquivalentTo(new
+            AssertionExtensions.Should((object) set).BeEquivalentTo(new
             {
                 Length = length,
                 Count = 1
             });
 
-            set.IsExist(add).Should().BeTrue();
-            set.IsMissing(add).Should().BeFalse();
+            AssertionExtensions.Should((bool) set.IsExist(add)).BeTrue();
+            AssertionExtensions.Should((bool) set.IsMissing(add)).BeFalse();
             set.GetExistingNumbers().Should().Contain(add);
             set.GetMissingNumbers().Should().NotContain(add);
         }
@@ -126,21 +127,21 @@ namespace SudokuSolver.Engine.Test
         [DataRow(1, 1)]
         [DataRow(3, 2)]
         [DataRow(10, 2)]
-        public void TestCount_AddTwiceSame(int length, int add)
+        public void AddTwiceSame(int length, int add)
         {
             var set = new NumberSet(length);
 
             set.Add(add);
             set.Add(add);
 
-            set.Should().BeEquivalentTo(new
+            AssertionExtensions.Should((object) set).BeEquivalentTo(new
             {
                 Length = length,
                 Count = 1
             });
 
-            set.IsExist(add).Should().BeTrue();
-            set.IsMissing(add).Should().BeFalse();
+            AssertionExtensions.Should((bool) set.IsExist(add)).BeTrue();
+            AssertionExtensions.Should((bool) set.IsMissing(add)).BeFalse();
             set.GetExistingNumbers().Should().Contain(add);
             set.GetMissingNumbers().Should().NotContain(add);
         }
@@ -149,7 +150,7 @@ namespace SudokuSolver.Engine.Test
         [DataRow(1, 1)]
         [DataRow(3, 2)]
         [DataRow(10, 2)]
-        public void TestCount_AddOnce_RemoveTwiceSame(int length, int add)
+        public void AddOnce_RemoveTwiceSame(int length, int add)
         {
             var set = new NumberSet(length);
 
@@ -157,39 +158,64 @@ namespace SudokuSolver.Engine.Test
             set.Remove(add);
             set.Remove(add);
 
-            set.Should().BeEquivalentTo(new
+            AssertionExtensions.Should((object) set).BeEquivalentTo(new
             {
                 Length = length,
                 Count = 0
             });
 
-            set.IsExist(add).Should().BeFalse();
-            set.IsMissing(add).Should().BeTrue();
+            AssertionExtensions.Should((bool) set.IsExist(add)).BeFalse();
+            AssertionExtensions.Should((bool) set.IsMissing(add)).BeTrue();
             set.GetExistingNumbers().Should().NotContain(add);
             set.GetMissingNumbers().Should().Contain(add);
+            AssertionExtensions.Should((bool) set.IsEmpty()).BeTrue();
         }
 
         [TestMethod]
         [DataRow(1, 1)]
         [DataRow(3, 2)]
         [DataRow(10, 2)]
-        public void TestCount_AddNone_RemoveTwiceSame(int length, int add)
+        public void AddNone_RemoveTwiceSame(int length, int add)
         {
             var set = new NumberSet(length);
 
             set.Remove(add);
             set.Remove(add);
 
-            set.Should().BeEquivalentTo(new
+            AssertionExtensions.Should((object) set).BeEquivalentTo(new
             {
                 Length = length,
                 Count = 0
             });
 
-            set.IsExist(add).Should().BeFalse();
-            set.IsMissing(add).Should().BeTrue();
+            AssertionExtensions.Should((bool) set.IsExist(add)).BeFalse();
+            AssertionExtensions.Should((bool) set.IsMissing(add)).BeTrue();
             set.GetExistingNumbers().Should().NotContain(add);
             set.GetMissingNumbers().Should().Contain(add);
+        }
+
+        [TestMethod]
+        [DataRow(1)]
+        [DataRow(2)]
+        [DataRow(3)]
+        [DataRow(4)]
+        [DataRow(10)]
+        public void TestIfFull(int length)
+        {
+            var set = new NumberSet(length);
+
+            EnumerableExtensions.ForEach<int>(set.GetMissingNumbers(), i => set.Add(i));
+
+            AssertionExtensions.Should((object) set).BeEquivalentTo(new
+            {
+                Length = length,
+                Count = length,
+            });
+
+            Enumerable.Count<int>(set.GetExistingNumbers()).Should().Be(length);
+            set.GetMissingNumbers().Should().BeEmpty();
+            AssertionExtensions.Should((bool) set.IsFull()).BeTrue();
+            AssertionExtensions.Should((bool) set.IsEmpty()).BeFalse();
         }
     }
 }

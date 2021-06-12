@@ -5,4 +5,4 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-[assembly: InternalsVisibleTo("SudokuSolver.Engine.Test")] 
+[assembly: InternalsVisibleTo("SudokuSolver.Test.Engine")] 
