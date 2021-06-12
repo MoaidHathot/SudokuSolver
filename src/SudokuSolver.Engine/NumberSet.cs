@@ -5,6 +5,10 @@ using SudokuSolver.Engine.Extensions;
 
 namespace SudokuSolver.Engine
 {
+    /// <summary>
+    /// An optimized set for positive numbers. Does not support Zero!
+    /// Is not Zero based. First number is "1"
+    /// </summary>
     internal class NumberSet
     {
         private readonly BitArray _bits;
