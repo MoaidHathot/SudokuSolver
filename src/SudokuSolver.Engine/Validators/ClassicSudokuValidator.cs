@@ -5,45 +5,38 @@ using System.Text;
 using System.Threading.Tasks;
 using SudokuSolver.Engine.Extensions;
 
-namespace SudokuSolver.Engine
+namespace SudokuSolver.Engine.Validators
 {
-    internal class SudokuValidator
+    public class ClassicSudokuValidator : ISudokuValidator
     {
-        public (bool valid, bool complete) GetSudokuState(Sudoku sudoku)
+        private ClassicSudoku _sudoku;
+
+        public ClassicSudokuValidator(ClassicSudoku classicSudoku)
         {
-            //todo - optimize - calculate both at the same time;
-            var valid = IsSudokuValid(sudoku);
-
-            if (!valid)
-            {
-                return (false, false);
-            }
-
-            return (valid, IsSudokuComplete(sudoku));
+            _sudoku = classicSudoku;
         }
 
-
-        public bool IsSudokuComplete(Sudoku sudoku)
+        public bool IsSudokuComplete()
         {
-            for (var row = 0; row < sudoku.RowCount; ++row)
+            for (var row = 0; row < _sudoku.RowCount; ++row)
             {
-                if (!sudoku.IsRowComplete(row))
+                if (!_sudoku.IsRowComplete(row))
                 {
                     return false;
                 }
             }
 
-            for (var column = 0; column < sudoku.ColumnCount; ++column)
+            for (var column = 0; column < _sudoku.ColumnCount; ++column)
             {
-                if (!sudoku.IsColumnComplete(column))
+                if (!_sudoku.IsColumnComplete(column))
                 {
                     return false;
                 }
             }
 
-            for (var cube = 0; cube < sudoku.CubeCount; ++cube)
+            for (var cube = 0; cube < _sudoku.CubeCount; ++cube)
             {
-                if (!sudoku.IsCubeComplete(cube))
+                if (!_sudoku.IsCubeComplete(cube))
                 {
                     return false;
                 }
@@ -52,24 +45,24 @@ namespace SudokuSolver.Engine
             return true;
         }
 
-        public bool IsSudokuValid(Sudoku sudoku)
+        public bool IsSudokuValid()
         {
-            if (sudoku.RowCount != sudoku.ColumnCount)
+            if (_sudoku.RowCount != _sudoku.ColumnCount)
             {
                 throw new NotSupportedException();
             }
 
-            for (var index = 0; index < sudoku.RowCount; ++index)
+            for (var index = 0; index < _sudoku.RowCount; ++index)
             {
-                if (!IsCrossValid(sudoku, index, index))
+                if (!this.IsCrossValid(_sudoku, index, index))
                 {
                     return false;
                 }
             }
 
-            for (var cube = 0; cube < sudoku.CubeCount; ++cube)
+            for (var cube = 0; cube < _sudoku.CubeCount; ++cube)
             {
-                if (!IsCubeValid(sudoku, cube))
+                if (!IsCubeValid(cube))
                 {
                     return false;
                 }
@@ -78,22 +71,22 @@ namespace SudokuSolver.Engine
             return true;
         }
 
-        public bool IsValidPlacement(Sudoku sudoku, int row, int column, int number)
-            => !sudoku.ExistInRow(row, number) && !sudoku.ExistInColumn(column, number) && !sudoku.ExistInCube(SudokuCalculator.GetCubeFromCell(row, column), number);
+        public bool IsValidPlacement(int row, int column, int number)
+            => !_sudoku.ExistInRow(row, number) && !_sudoku.ExistInColumn(column, number) && !_sudoku.ExistInCube(SudokuCalculator.GetCubeFromCell(row, column), number);
 
-        public bool IsRowValid(Sudoku sudoku, int row)
+        public bool IsRowValid(int row)
         {
             var set = new NumberSet(SudokuCalculator.SudokuSize);
 
             for (var column = 0; column < SudokuCalculator.SudokuSize; ++column)
             {
-                if (sudoku[row, column] is int number)
+                if (_sudoku[row, column] is int number)
                 {
                     if (set.IsExist(number))
                     {
                         return false;
                     }
-                    
+
                     set.Add(number);
                 }
             }
@@ -101,13 +94,13 @@ namespace SudokuSolver.Engine
             return true;
         }
 
-        public bool IsColumnValid(Sudoku sudoku, int column)
+        public bool IsColumnValid(int column)
         {
             var set = new NumberSet(SudokuCalculator.SudokuSize);
 
             for (var row = 0; row < SudokuCalculator.SudokuSize; ++row)
             {
-                if (sudoku[row, column] is int number)
+                if (_sudoku[row, column] is int number)
                 {
                     if (set.IsExist(number))
                     {
@@ -121,7 +114,7 @@ namespace SudokuSolver.Engine
             return true;
         }
 
-        public bool IsCubeValid(Sudoku sudoku, int cube)
+        public bool IsCubeValid(int cube)
         {
             var set = new NumberSet(SudokuCalculator.SudokuSize);
 
@@ -134,7 +127,7 @@ namespace SudokuSolver.Engine
             {
                 for (var column = startingColumn; column < columnLimit; ++column)
                 {
-                    if (sudoku[row, column] is int number)
+                    if (_sudoku[row, column] is int number)
                     {
                         if (set.IsExist(number))
                         {
@@ -148,8 +141,5 @@ namespace SudokuSolver.Engine
 
             return true;
         }
-
-        public bool IsCrossValid(Sudoku sudoku, int row, int column)
-            => IsRowValid(sudoku, row) && IsColumnValid(sudoku, column);
     }
 }

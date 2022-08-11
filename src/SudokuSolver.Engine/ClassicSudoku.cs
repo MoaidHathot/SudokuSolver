@@ -4,10 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Runtime.InteropServices;
 using SudokuSolver.Engine.Extensions;
+using SudokuSolver.Engine.Validators;
 
 namespace SudokuSolver.Engine
 {
-    internal class Sudoku
+    public class ClassicSudoku : ISudokuBoard
     {
         public int RowCount => SudokuCalculator.SudokuSize;
         public int ColumnCount => SudokuCalculator.SudokuSize;
@@ -25,17 +26,18 @@ namespace SudokuSolver.Engine
 
         public int?[,] Grid { get; }
 
-        public Sudoku(int?[,] grid)
+        public ISudokuValidator Validator { get; protected init; }
+
+        public ClassicSudoku(int?[,] grid, ISudokuValidator? validator = null)
         {
             Grid = grid;
             InitializeSets(grid);
             FilledNumbersCount = CountFilledNumbers();
             
             FillEmptyCells(_emptyCells);
-        }
 
-        public (int row, int column)? GetEmptyCell()
-            => _emptyCells.FirstOrDefault();
+            Validator = validator ?? new ClassicSudokuValidator(this);
+        }
 
         public bool IsComplete()
             => FilledNumbersCount == SudokuCalculator.MaxItems;
@@ -82,7 +84,10 @@ namespace SudokuSolver.Engine
             set => HandleSet(row, column, value);
         }
 
-        private void HandleSet(int row, int column, int? value)
+        protected (int row, int column)? GetEmptyCell()
+            => _emptyCells.FirstOrDefault();
+
+        protected virtual void HandleSet(int row, int column, int? value)
         {
             var (rowSet, columnSet, cubeSet) = (_rowSets[row], _columnSets[column], _cubeSets[SudokuCalculator.GetCubeFromCell(row, column)]);
 

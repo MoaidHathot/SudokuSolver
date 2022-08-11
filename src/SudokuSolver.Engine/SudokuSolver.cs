@@ -5,31 +5,29 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using SudokuSolver.Engine.Extensions;
+using SudokuSolver.Engine.Validators;
 
 namespace SudokuSolver.Engine
 {
     public class SudokuSolver
     {
-        private readonly SudokuValidator _validator = new();
-
-        public bool Solve(int?[,] grid, Action<CellChangedEventArgs>? callback = null)
-            => Solve(new Sudoku(grid), callback);
-
-        private bool Solve(Sudoku sudoku, Action<CellChangedEventArgs>? callback = null)
+        public bool Solve(ISudokuBoard sudoku, Action<CellChangedEventArgs>? callback = null)
         {
             if (sudoku.IsComplete())
             {
                 return true;
             }
 
+            var validator = sudoku.Validator;
+
             var (row, column) = sudoku.EmptyCells.FirstOrDefault();
 
             foreach (var number in sudoku.GetMissingInRow(row))
             {
-                if (_validator.IsValidPlacement(sudoku, row, column, number))
+                if (validator.IsValidPlacement(row, column, number))
                 {
                     sudoku[row, column] = number;
-                    HandleCellChanged(callback, row, column, number);
+                    HandleCellChanged(callback, row, column, number, sudoku);
 
                     if (Solve(sudoku, callback))
                     {
@@ -37,20 +35,17 @@ namespace SudokuSolver.Engine
                     }
 
                     sudoku[row, column] = null;
-                    HandleCellChanged(callback, row, column, number);
+                    HandleCellChanged(callback, row, column, number, sudoku);
                 }
             }
 
             return false;
         }
 
-        public bool Validate(int?[,] grid)
-            => Validate(new Sudoku(grid));
+        public bool Validate(ClassicSudoku sudoku)
+            => sudoku.Validator.IsSudokuComplete() && sudoku.Validator.IsSudokuValid();
 
-        private bool Validate(Sudoku sudoku)
-            => _validator.GetSudokuState(sudoku) is (true, true);
-
-        private void HandleCellChanged(Action<CellChangedEventArgs>? callback, int row, int column, int? value)
-            => callback?.Invoke(new CellChangedEventArgs(row, column, value));
+        private void HandleCellChanged(Action<CellChangedEventArgs>? callback, int row, int column, int? value, ISudokuBoard board)
+            => callback?.Invoke(new CellChangedEventArgs(row, column, value, board));
     }
 }
